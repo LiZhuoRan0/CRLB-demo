@@ -21,6 +21,8 @@ a2  = genPartialSteerVector(theta, N, d, lambda_c, 2);
 MseMUSIC    = zeros(length(SNRdBs), 1);
 MseESPRIT   = zeros(length(SNRdBs), 1);
 CRLB        = zeros(length(SNRdBs), 1);
+D           = a1;
+Cst         = D'*(eye(N)-H*inv(H'*H)*H')*D;
 for i_SNR = 1:length(SNRdBs)
     fprintf('==============================================\n');
     fprintf('SNR        = %ddB\n', SNRdBs(i_SNR));
@@ -41,12 +43,14 @@ for i_SNR = 1:length(SNRdBs)
         MseESPRIT(i_SNR)    = MseESPRIT(i_SNR) + abs(asin(theta__ESPRIT) - asin(theta))^2;
         
         sigma2  = 10^(-SNRdBs(i_SNR)/10);
+% 这个sigma2和上面的值是渐进一致的
 %         sigma2  = (norm(Y, 'fro')^2-norm(H*X, 'fro')^2)/...
 %                 (size(Y, 1)*size(Y, 2));
-        X_bar   = kron(X.', eye(N));
-        y       = reshape(Y,[],1);
-        CRLB(i_SNR)     = CRLB(i_SNR) + sigma2/2./...
-                            real(-y'*X_bar*a2 + a2'*(X_bar'*X_bar)*H + a1'*(X_bar'*X_bar)*a1);
+%         X_bar   = kron(X.', eye(N));
+%         y       = reshape(Y,[],1);
+%         CRLB(i_SNR)     = CRLB(i_SNR) + sigma2/2./...
+%                             real(-y'*X_bar*a2 + a2'*(X_bar'*X_bar)*H + a1'*(X_bar'*X_bar)*a1);
+        CRLB(i_SNR)     = CRLB(i_SNR) + sigma2/2/real((Cst*(X*X')));
     end
 end
 MseMUSIC     = MseMUSIC/Nit;
