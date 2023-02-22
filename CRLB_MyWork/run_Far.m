@@ -1,2 +1,0 @@
-main_CDL_far
-main_PDL_far
